@@ -12,6 +12,8 @@ REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 # Harness FF config
 HARNESS_FF_API_KEY = os.getenv("HARNESS_FF_API_KEY", "").strip()
 FEATURE_FLAG_NAME = os.getenv("FEATURE_FLAG_NAME", "My_Test_Flag")
+Apagar_todo = os.getenv("Apagar_todo", "Apagar_todo")
+
 
 ff_client = None
 if HARNESS_FF_API_KEY:
@@ -44,6 +46,9 @@ def home():
     r = wait_for_redis()
     visitas = r.incr("visitas")
 
+
+    bg, fg, msg = "#111827", "#c5227c", "🌙 Belgrano (flag ON)"
+    
     treatment = False
     if ff_client:
         target = Target(identifier=str(visitas), name=f"user-{visitas}")
@@ -51,10 +56,15 @@ def home():
 
     if treatment:
         bg, fg, msg = "#111827", "#22c55e", "🌙 Nueva UI habilitada (flag ON)"
-    else:
-        bg, fg, msg = "white", "black", "🚫 UI original (flag OFF)"
+   
 
-    return f"""
+    treatment2 = False
+    if ff_client:
+        target = Target(identifier=str(visitas), name=f"user-{visitas}")
+        treatment2 = ff_client.bool_variation(Apagar_todo, target, False)
+
+    if treatment2:
+         return f"""
     <html>
       <body style="background:{bg};color:{fg};text-align:center;padding:50px;">
         <h1>📊 Contador de Visitas</h1>
@@ -62,6 +72,18 @@ def home():
         <p>{msg}</p>
         <a href="/reiniciar">Reiniciar</a> | <a href="/health">Health</a>
       </body>
+    </html>
+    """
+    else:
+        return f"""
+        <html>
+        </html>
+        """
+
+
+
+    return f"""
+    <html>
     </html>
     """
 
