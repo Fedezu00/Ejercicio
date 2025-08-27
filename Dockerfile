@@ -1,23 +1,33 @@
 FROM python:3.9-slim
 
+# ==== Configuración de entorno ====
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+# ==== Directorio de trabajo ====
 WORKDIR /app
 
-COPY app.py .
+# ==== Dependencias de sistema mínimas ====
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    ca-certificates \
+    curl \
+ && rm -rf /var/lib/apt/lists/*
+
+# ==== Instalación de dependencias de Python ====
+# Copiamos primero el requirements.txt para aprovechar la caché
 COPY requirements.txt .
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# ==== Copiamos el código ====
+COPY app.py .
 COPY start.sh .
+RUN chmod +x /app/start.sh
 
-# Instalar Redis
-RUN apt-get update && apt-get install -y redis-server \
-    && rm -rf /var/lib/apt/lists/*
-
-# Instalar dependencias Python
-RUN pip install --no-cache-dir -r requirements.txt
-
+# ==== Puerto expuesto ====
 EXPOSE 5000
-# Dar permisos de ejecución
-RUN chmod +x start.sh
 
-
-
-CMD ["bash", "start.sh"]
-
+# ==== Comando por defecto ====
+CMD ["/app/start.sh"]
