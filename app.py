@@ -12,7 +12,7 @@ REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 # Harness FF config
 HARNESS_FF_API_KEY = os.getenv("HARNESS_FF_API_KEY", "").strip()
 FEATURE_FLAG_NAME = os.getenv("FEATURE_FLAG_NAME", "My_Test_Flag")
-Apagar_todo = os.getenv("Apagar_todo", "Apagar_todo")
+Apagar_todo = os.getenv("FEATURE_FLAG_NAME2", "Apagar_todo")
 
 
 ff_client = None
@@ -63,7 +63,7 @@ def home():
         target = Target(identifier=str(visitas), name=f"user-{visitas}")
         treatment2 = ff_client.bool_variation(Apagar_todo, target, False)
 
-    if treatment2:
+    if treatment2:    #Si esta encendida muestra la pagina 
          return f"""
     <html>
       <body style="background:{bg};color:{fg};text-align:center;padding:50px;">
@@ -74,18 +74,13 @@ def home():
       </body>
     </html>
     """
-    else:
+    else:  #Muestra la pagina en blanco
         return f"""
         <html>
         </html>
         """
 
 
-
-    return f"""
-    <html>
-    </html>
-    """
 
 
 @app.route('/reiniciar')
